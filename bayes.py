@@ -54,7 +54,7 @@ def spamTest():
             errorCount += 1
     print 'the error rate is: ', float(errorCount) / len(testSet)
 
-# for ad.
+# for ads.
 def calcMostFreq(vocabList, fullText, n = 30):
     import operator
     freqDict = {}
@@ -139,7 +139,7 @@ def trainNB0(trainMatrix, trainCategory):
     numTrainDocs = len(trainMatrix)
     numWords = len(trainMatrix[0])
     pAbusive = sum(trainCategory) / float(numTrainDocs)
-    p0Num = ones(numWords); p1Num = ones(numWords)
+    p0Num = ones(numWords); p1Num = ones(numWords) #laplace smooth
     p0Denom = 2.0; p1Denom = 2.0
     for i in range(numTrainDocs):
         if trainCategory[i] == 1:
