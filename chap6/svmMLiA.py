@@ -98,7 +98,8 @@ class optStruct:
             self.K[:, i] = kernelTrans(self.X, self.X[i, :], kTup)
 
 def calcEk(oS, k):
-    fXk = float(multiply(oS.alphas, oS.labelMat).T * oS.K[:, k] + oS.b)
+    fXk = float(multiply(oS.alphas, oS.labelMat).T * \
+            (oS.X * oS.X[k, :].T)) + oS.b
     Ek = fXk - float(oS.labelMat[k])
     return Ek
 
