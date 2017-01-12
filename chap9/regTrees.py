@@ -135,3 +135,57 @@ def prune(tree, testData):
 def TestModelTree():
     myMat = mat(loadDataSet('exp2.txt'))
     print(createTree(myMat, modelLeaf, modelErr, (1, 10)))
+
+def regTreeEval(model, inDat):
+    return float(model)
+
+def modelTreeVal(model, inDat):
+    n = shape(inDat)[1]
+    X = mat(ones((1, n + 1)))
+    X[:, 1 : n + 1] = inDat
+    return float(X * model)
+
+def treeForeCast(tree, inDat, modelEval = regTreeEval):
+    if not isTree(tree):
+        return modelEval(tree, inDat)
+
+    if inDat[tree['spInd']] > tree['spVal']:
+        if isTree(tree['left']):
+            return treeForeCast(tree['left'], inDat, modelEval)
+        else:
+            return modelEval(tree['left'], inDat)
+    else:
+        if isTree(tree['right']):
+            return treeForeCast(tree['right'], inDat, modelEval)
+        else:
+            return modelEval(tree['right'], inDat)
+
+def createForeCast(tree, testData, modelEval = regTreeEval):
+    m = len(testData)
+    yHat = mat(zeros((m, 1)))
+    for i in range(m):
+        yHat[i, 0] = treeForeCast(tree, mat(testData[i]), modelEval)
+    return yHat
+
+def TestComprasion():
+    trainMat = mat(loadDataSet('bikeSpeedVsIq_train.txt'))
+    testMat = mat(loadDataSet('bikeSpeedVsIq_test.txt'))
+
+    # Regression tree
+    myTree = createTree(trainMat, ops = (1, 20))
+    yHat = createForeCast(myTree, testMat[:, 0])
+    corRegTree = corrcoef(yHat, testMat[:, 1], rowvar = 0)[0, 1]
+    print("corrcoef of regression tree is %f", corRegTree)
+
+    # Model tree
+    myTree = createTree(trainMat, modelLeaf, modelErr, ops = (1, 20))
+    yHat = createForeCast(myTree, testMat[:, 0], modelTreeVal)
+    corModelTree = corrcoef(yHat, testMat[:, 1], rowvar = 0)[0, 1]
+    print("corrcoef of model tree is %f", corModelTree)
+
+    # classical regression tree
+    ws, X, Y = linearSolve(trainMat)
+    for i in range(shape(testMat)[0]):
+        yHat[i] = testMat[i, 0] * ws[1, 0] + ws[0, 0]
+    corReg = corrcoef(yHat, testMat[:, 1], rowvar = 0)[0, 1]
+    print("corrcoef of classical regression is %f", corReg)
