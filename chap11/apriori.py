@@ -84,3 +84,13 @@ def ruleFromConseq(freqSet, H, supportData, br1, minConf = 0.7):
         Hmp1 = calcConf(freqSet, Hmp1, supportData, br1, minConf)
         if len(Hmp1) > 1:
             ruleFromConseq(freqSet, Hmp1, supportData, br1, minConf)
+
+def testMushroom():
+    mushDatSet = [line.split() for line \
+            in open('./mushroom.dat').readlines()]
+    L, supportData = apriori(mushDatSet, minSupport = 0.3)
+    for item in L[1]:
+        if item.intersection('2'): print(item)
+
+    for item in L[3]:
+        if item.intersection('2'): print(item)
