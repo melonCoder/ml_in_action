@@ -107,20 +107,37 @@ from time import sleep
 import re
 
 def getLotsOfTweets(searchStr):
-    CONSUMER_KEY = '5m6HL6NcT4IwLBiGLsNuAtq8F'
-    CONSUMER_SECRET = 'kQpjN3qjHj0SVzAL2ulKO1dkJYoiBdbIvVm3GZBFuYdTXHMy8e'
-    ACCESS_TOKEN_KEY = '371290429qOrzbUfJT0Wal3Xx1orQjO1hGdT4fEkIUv8iTYIy'
-    ACCESS_TOKEN_SECRET = 'au3nO28thkLoHqCH6Lz8vRtwaZagiLncftPJw5vX6cVCI'
+    # Note to remove personal keys before published
+    CONSUMER_KEY = ''
+    CONSUMER_SECRET = ''
+    ACCESS_TOKEN_KEY = ''
+    ACCESS_TOKEN_SECRET = ''
+    # twitter api has changed since ml_in_action was written, now, we can
+    # at most get 100 search results.
     api = twitter.Api(consumer_key = CONSUMER_KEY,
                       consumer_secret = CONSUMER_SECRET,
                       access_token_key = ACCESS_TOKEN_KEY,
                       access_token_secret = ACCESS_TOKEN_SECRET)
-    # get 1500 results: 15 pages * 100 per pages
-    # resultPages = []
     resultPages = api.GetSearch(term = searchStr, count = 100)
-    #for i in range(1, 15):
-    #    print('fetching page %d' % i)
-    #    searchResult = api.GetSearch(searchStr, count = 100, page = i)
-    #    resultPages.append(searchResult)
-    #    sleep(5)
     return resultPages
+
+def textParse(bigString):
+    urlsRemoved = re.sub('(http[s]?:[/][/]|www.)([a-z]|[A-Z]|[0-9]|[/.]|[~])*',\
+            '', bigString)
+    listOfTokens = re.split(r'\W*', urlsRemoved)
+    # since in english, plenty of worlds are meaningless, remember to
+    # remove it
+    forbiddenList = ['and', 'the', 'this', 'with', 'for', 'is', 'are',\
+            'was', 'were']
+    return [tok.lower() for tok in listOfTokens \
+            if len(tok) > 2 and tok.lower() not in forbiddenList]
+
+def mineTweets(tweetArr, minSup = 5):
+    parsedList = []
+    for i in range(100):
+        parsedList.append(textParse(tweetArr[i].text))
+    initSet = createInitSet(parsedList)
+    myFptree, myHeaderTab = createTree(initSet, minSup)
+    myFreqList = []
+    mineTree(myFptree, myHeaderTab, minSup, set([]), myFreqList)
+    return myFreqList
