@@ -141,3 +141,11 @@ def mineTweets(tweetArr, minSup = 5):
     myFreqList = []
     mineTree(myFptree, myHeaderTab, minSup, set([]), myFreqList)
     return myFreqList
+
+def testKosarak():
+    parsedDat = [line.split() for line in open('./kosarak.dat').readlines()]
+    initSet = createInitSet(parsedDat)
+    myFptree, myHeaderTab = createTree(initSet, 100000)
+    myFreqList = []
+    mineTree(myFptree, myHeaderTab, 100000, set([]), myFreqList)
+    return myFreqList
